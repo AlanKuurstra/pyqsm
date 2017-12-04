@@ -1,0 +1,9 @@
+*.pyc
+.DS_Store
+*.npy
+*.so
+*.gz
+*.nii
+*.egg-info
+*.*~
+build*/
