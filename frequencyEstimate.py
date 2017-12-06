@@ -9,7 +9,6 @@ import nibabel as nib
 import numpy as np
 import scipy.io as sio
 import unwrap3d
-from vidi3d import compare3d
 from scipy import ndimage
 import calculateReliability as cr   
 
@@ -136,32 +135,6 @@ def estimateFrequencyFromWrappedPhase(phImg,voxelSize,te,mask,weight,truncateEch
         #f,f_nl=estimateNonlinearPhase(phaseEstimates,te,W2=W2,mask=mask)
         f=estimateFrequency(phaseEstimates,te,W2=W2,mask=mask)    
     return f #rad/s
-if __name__=="__main__":  
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-        
+if __name__=="__main__":
+    pass
         

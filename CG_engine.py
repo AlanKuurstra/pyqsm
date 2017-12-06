@@ -7,8 +7,6 @@ Created on Fri Jan  8 10:11:09 2016
 import numpy as np
 import time
 
-from vidi3d import imshow3d, compare3d
-
 #tmp=np.load('/Users/Alan/python/QSM/QSMapp/bg_removal/LFS_bg_removed_jacobi_30000iter.npy')  
 #import nibabel as nib
 #erodedmaskloc='/mnt/Data/code/matlab/P714_Siemens/MagEchoAvg_brain_eroded5.nii'
