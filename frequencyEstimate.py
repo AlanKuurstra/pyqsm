@@ -68,12 +68,13 @@ def quickEstimateFrequency(data,W2_avg,te):
     return freqest  
 
 def phaseUnwrap(phImg,te,mask,weight,removePhase1=True):
-    print "unwrapping phase"
+    print("unwrapping phase")
+    mask=mask.astype('bool')
     unwrapped=phImg.copy()    
     f=np.empty(unwrapped.shape[:-1])        
     #f_nl=np.empty(unwrapped.shape[:-1])    
     unreliabilityWeights=np.ones_like(phImg)
-    phase_estimates=np.empty_like(unwrapped) 
+    phase_estimates=np.empty(unwrapped.shape[:-1])    
     
     if weight is None:
         W2=None
@@ -94,27 +95,35 @@ def phaseUnwrap(phImg,te,mask,weight,removePhase1=True):
         unreliabilityWeights[...,echo]=cr.calculateReliability(unwrapped[...,echo].astype('float32'),mask.astype('bool'))
         unwrapfloat32=unwrap3d.unwrap3d(unwrapped[...,echo].astype('float32'),mask.astype('bool'))                
         unwrapped[...,echo]=(unwrapped[...,echo]+np.round((unwrapfloat32-unwrapped[...,echo])/(2*np.pi))*2*np.pi)*mask                  
-        nextEchoToUnwrap=2
+        nextEchoToUnwrap=2           
      
     for echo in range(nextEchoToUnwrap,phImg.shape[-1]):       
         unreliabilityWeights[...,echo]=cr.calculateReliability(unwrapped[...,echo].astype('float32'),mask.astype('bool'))        
         #f,f_nl=estimateNonlinearPhase(unwrapped[...,:echo],te[...,:echo],W2=W2[...,:echo],mask=mask)
-        #phase_estimates[...,echo]=f*te[echo]+f_nl*te[echo]**2        
-        #unwrapped[...,echo]=np.angle(np.exp(1j*(unwrapped[...,echo] - phase_estimates[...,echo])))
-        #unwrapped[...,echo]=unwrapped[...,echo]+phase_estimates[...,echo]      
-        
+        #phase_estimates=f*te[echo]+f_nl*te[echo]**2        
+               
         f=estimateFrequency(unwrapped[...,:echo],te[...,:echo],W2=W2[...,:echo],mask=mask)
-        phase_estimates[...,echo]=f*te[echo]
-        unwrapped[...,echo]=np.angle(np.exp(1j*(unwrapped[...,echo] - phase_estimates[...,echo])))        
-        unwrapped[...,echo]=unwrapped[...,echo]+phase_estimates[...,echo]                
-        
+        phase_estimates=f*te[echo]
+        unwrapped[...,echo]=np.angle(np.exp(1j*(unwrapped[...,echo] - phase_estimates)))
+        #after subtraction of phase estimate, all values should be close to zero if frequency doesn't change
+        #but maybe there's a susceptibility change due to breathing and a linear change in freq happens across the brain
+        #let's just unwrap to make sure
+        unwrapfloat32=unwrap3d.unwrap3d(unwrapped[...,echo].astype('float32'),mask.astype('bool'))                
+        unwrapped[...,echo]=(unwrapped[...,echo]+np.round((unwrapfloat32-unwrapped[...,echo])/(2*np.pi))*2*np.pi)*mask        
+        #each echo could have a multiple of 2pi offset depending on where unwrapping
+        # seeds from.  The algorithm seeds from highest snr area and starts unwrapping.
+        #If the algorithm picks a different starting spot each echo, there could be 
+        #global wpi jumps between echoes. This looks for and corrects that.        
+        avg_difference_from_zero=unwrapped[...,echo][mask].mean()        
+        two_pi_offset_integer=int(avg_difference_from_zero/(2*np.pi))        
+        unwrapped[...,echo]=unwrapped[...,echo]+phase_estimates+two_pi_offset_integer*2*np.pi
+    
     return unwrapped,unreliabilityWeights
 
-def estimateFrequencyFromWrappedPhase(phImg,voxelSize,te,mask,weight,truncateEcho=-1,removePhase1=True):
+def estimateFrequencyFromWrappedPhase(phImg,voxelSize,te,mask,weight,truncateEcho=None,removePhase1=True):
     phImg=phImg[...,:truncateEcho]
     te=te[:truncateEcho]
     weight=weight[...,:truncateEcho]    
-    
     phaseEstimates,unreliability=phaseUnwrap(phImg,te,mask,weight,removePhase1=removePhase1)
     
     reliable=(unreliability<30)
