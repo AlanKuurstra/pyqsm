@@ -110,7 +110,8 @@ def estimateFourierConeByForcingSusceptibilityOutsideBrainToZero(LFS,FOV,mask_in
 if __name__=="__main__":
         
     print "loading data"    
-    fileloc="/cfmm/data/akuurstr/tmp/sagar/3DBrain_only.mat"
+    #fileloc="/cfmm/data/akuurstr/tmp/sagar/3DBrain_only.mat"
+    fileloc="/cfmm/data/akuurstr/data/3DBrainModel_QSMsims/3DBrain_only.mat"
     suscData=scipy.io.loadmat(fileloc)['model']
     #suscData=scipy.ndimage.zoom(suscData,0.1,order=0)
     suscData=scipy.ndimage.zoom(suscData,0.2,order=0)
