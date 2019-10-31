@@ -8,10 +8,9 @@ Created on Mon Jan 25 16:08:32 2016
 import nibabel as nib
 import numpy as np
 import scipy.io as sio
-import unwrap3d
+import Unwrap3d as unwrap3d
 from scipy import ndimage
-import calculateReliability as cr   
-
+from Unwrap3d import calculate_reliability
 
 def estimateNonlinearPhase(data,te,W2=None,mask=None):
     #estimate linear and an x**2 part of phase (polynomial of degree 2)
@@ -86,19 +85,19 @@ def phaseUnwrap(phImg,te,mask,weight,removePhase1=True):
         te=te-te[0]       
     
     if not removePhase1:
-        unreliabilityWeights[...,0]=cr.calculateReliability(unwrapped[...,0].astype('float32'),mask.astype('bool'))
+        unreliabilityWeights[...,0]=calculate_reliability(unwrapped[...,0].astype('float32'),mask.astype('bool'))
         unwrapfloat32=unwrap3d.unwrap3d(unwrapped[...,0].astype('float32'),mask.astype('bool'))
         unwrapped[...,0]=(unwrapped[...,0]+np.round((unwrapfloat32-unwrapped[...,0])/(2*np.pi))*2*np.pi)*mask        
         nextEchoToUnwrap=1
     else:
         echo=1
-        unreliabilityWeights[...,echo]=cr.calculateReliability(unwrapped[...,echo].astype('float32'),mask.astype('bool'))
+        unreliabilityWeights[...,echo]=calculate_reliability(unwrapped[...,echo].astype('float32'),mask.astype('bool'))
         unwrapfloat32=unwrap3d.unwrap3d(unwrapped[...,echo].astype('float32'),mask.astype('bool'))                
         unwrapped[...,echo]=(unwrapped[...,echo]+np.round((unwrapfloat32-unwrapped[...,echo])/(2*np.pi))*2*np.pi)*mask                  
-        nextEchoToUnwrap=2           
+        nextEchoToUnwrap=2
      
     for echo in range(nextEchoToUnwrap,phImg.shape[-1]):       
-        unreliabilityWeights[...,echo]=cr.calculateReliability(unwrapped[...,echo].astype('float32'),mask.astype('bool'))        
+        unreliabilityWeights[...,echo]=calculate_reliability(unwrapped[...,echo].astype('float32'),mask.astype('bool'))
         #f,f_nl=estimateNonlinearPhase(unwrapped[...,:echo],te[...,:echo],W2=W2[...,:echo],mask=mask)
         #phase_estimates=f*te[echo]+f_nl*te[echo]**2        
                
@@ -108,7 +107,7 @@ def phaseUnwrap(phImg,te,mask,weight,removePhase1=True):
         #after subtraction of phase estimate, all values should be close to zero if frequency doesn't change
         #but maybe there's a susceptibility change due to breathing and a linear change in freq happens across the brain
         #let's just unwrap to make sure
-        unwrapfloat32=unwrap3d.unwrap3d(unwrapped[...,echo].astype('float32'),mask.astype('bool'))                
+        unwrapfloat32=unwrap3d.unwrap3d(unwrapped[...,echo].astype('float32'),mask.astype('bool'))
         unwrapped[...,echo]=(unwrapped[...,echo]+np.round((unwrapfloat32-unwrapped[...,echo])/(2*np.pi))*2*np.pi)*mask        
         #each echo could have a multiple of 2pi offset depending on where unwrapping
         # seeds from.  The algorithm seeds from highest snr area and starts unwrapping.

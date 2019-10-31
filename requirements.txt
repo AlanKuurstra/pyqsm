@@ -1,0 +1,5 @@
+numpy
+scipy
+nibabel
+git+https://github.com/AlanKuurstra/pyUnwrap3d.git
+
