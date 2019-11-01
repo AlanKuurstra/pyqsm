@@ -5,12 +5,10 @@ Created on Mon Jan 25 16:08:32 2016
 @author: Alan
 """
 
-import nibabel as nib
 import numpy as np
-import scipy.io as sio
-import Unwrap3d as unwrap3d
+import pyunwrap3d as unwrap3d
 from scipy import ndimage
-from Unwrap3d import calculate_reliability
+from pyunwrap3d import calculate_reliability
 
 def estimateNonlinearPhase(data,te,W2=None,mask=None):
     #estimate linear and an x**2 part of phase (polynomial of degree 2)

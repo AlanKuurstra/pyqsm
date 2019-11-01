@@ -1,5 +1,5 @@
 numpy
 scipy
 nibabel
-git+https://github.com/AlanKuurstra/pyUnwrap3d.git
+git+https://github.com/AlanKuurstra/pyunwrap3d.git
 
