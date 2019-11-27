@@ -19,5 +19,5 @@ setup(
     #packages=['pyQSM'],
     #or instead of adding all the scripts, I can just add the one script that I want to distribute
     #note that since I've created a package dir, I can now import pyqsm.frequencyEstimate instead of just frequencyEstimate
-    py_modules=['pyqsm.frequencyEstimate'],
+    py_modules=['pyqsm.frequencyEstimate','pyqsm.dipole_convolve','pyqsm.dipole_kernel'],
 )
